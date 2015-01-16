@@ -1,0 +1,19 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "ethan.weinberger@yale.edu",
+    "longName": "PennApps2015",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "shortName": "PennApps2015",
+    "uuid": "40c5c64c-4ff1-4003-b922-a9b19113f53d",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}

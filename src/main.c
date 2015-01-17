@@ -2,6 +2,7 @@
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 
+
 static void main_window_load(Window *window) {
   
   //Sets up the text layer in a rectangle
@@ -10,10 +11,10 @@ static void main_window_load(Window *window) {
   //Sets up the colors and content of the layer
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
-  text_layer_set_text(s_time_layer, "Hi Yutaro");
+  text_layer_set_text(s_time_layer, "Hi Matt");
   
   //Sets up the font for the layer
-  text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
+  text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));

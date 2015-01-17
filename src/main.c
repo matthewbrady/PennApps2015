@@ -1,18 +1,32 @@
 #include <pebble.h>
+  
+#define SLEEP_AFTER_MOVE_TIME 5000
+
+enum App_State {
+  awake,
+  level1,
+  level2,
+  level3,
+  ringing    
+};
+  
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 static int secondCount = 0; //Keeps track of how many seconds since user has moved
 static int x_accel = 0, y_accel = 0, z_accel = 0; //Keeps track of most recent accelerometer reading
 static int x_prev = 0, y_prev = 0, z_prev = 0;    //2nd most recent accelerometer reading
+static int sleep_threshold[4] = {5, 10, 20, 30};
+
+
 
 //Tracks whether the watch is moving or not
 //Sensitivity should be updated after testing
-bool moving() { 
+bool moving(int sensitivity) { 
   
   //Checks to see if watch has moved by 50 units on any axis
-  if ((x_accel >= x_prev + 50) || (x_accel <= x_prev - 50) ||
-        (y_accel >= y_prev + 50) || (y_accel <= y_prev - 50) ||
-        (z_accel >= z_prev + 50) || (z_accel <= z_prev - 50)) {
+  if ((x_accel >= x_prev + sensitivity) || (x_accel <= x_prev - sensitivity) ||
+        (y_accel >= y_prev + sensitivity) || (y_accel <= y_prev - sensitivity) ||
+        (z_accel >= z_prev + sensitivity) || (z_accel <= z_prev - sensitivity)) {
     //If yes, we know the watch was moving
     return true;
   }
@@ -47,50 +61,73 @@ static void data_handler(AccelData *data, uint32_t num_samples) {
   
 }
 
+enum App_State get_state(int seconds){
+  if (seconds>=sleep_threshold[3]){
+    return ringing;
+  }
+  else if (seconds>=sleep_threshold[2]){
+    return level3;
+  }
+  else if (seconds>=sleep_threshold[1]){
+    return level2;
+  }
+  else if (seconds>=sleep_threshold[0]){
+    return level1;
+  }
+  else return awake;
+}
+
 //Calls the function every x where x is units_changed variable in the init() function (using seconds for now)
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
-  //Handling each second
-  if (moving()) {
+  enum App_State sleep_state = get_state(secondCount);
+  
+  if (moving(50) && (sleep_state != ringing)){
+    secondCount = 0;
+    sleep_state = awake;
+  }
+  
+  switch (sleep_state) {
+    case awake:
       text_layer_set_text(s_time_layer, "Good job!");
-      psleep(5000); //Sleeps the watch for 5 seconds
-      secondCount = 0; //Resets the counter for a fresh start
-  } 
-  else {
-    //If it has been five seconds, give a warning
-    if (secondCount == 5) {
+      secondCount++;//note:this is a special case because it sleeps for the entire interval, essentially waiting for level1
+      break;
+    case level1:
       text_layer_set_text(s_time_layer, "Feeling tired?");
       secondCount++;
-    }
-    //Another warning
-    else if (secondCount == 10) {
+      break;
+    case level2:
       text_layer_set_text(s_time_layer, "Asleep?");
       secondCount++;
-    }
-    //Last warning
-    else if (secondCount == 20) {
+      break;
+    case level3:
       text_layer_set_text(s_time_layer, "Buzzer coming in 10...");
       secondCount++;
-    }
-    //Start buzzing
-    else if (secondCount >= 30) {
+      break;
+    case ringing:
       text_layer_set_text(s_time_layer, "Wakey wakey!");
-      
-      int counter = 0;
-      while (counter < 10) { //Gives 10 long pulses with 1 second of space between each
-        vibes_long_pulse();
-        psleep(1000);
-        counter++;
-        
-      }
-      secondCount = 0;
-      psleep(10000); //Sleeps for 10 seconds
-    }
-    else {
+      vibes_long_pulse();
       secondCount++;
-    }
+      break;
   }
 }
+
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  enum App_State sleep_state = get_state(secondCount);
+  if (sleep_state == ringing) {
+    secondCount = 0;
+    text_layer_set_text(s_time_layer, "Try to stay awake!");
+  }
+}
+
+static void click_config_provider(void *context) {
+  
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
+  
+}
+
+
+
 
 static void main_window_load(Window *window) {
   
@@ -133,6 +170,8 @@ static void init() {
     .load = main_window_load,
     .unload = main_window_unload
   });
+  
+  window_set_click_config_provider(s_main_window, click_config_provider);
   
   window_stack_push(s_main_window, true);
 }

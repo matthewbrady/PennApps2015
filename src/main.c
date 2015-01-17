@@ -23,14 +23,12 @@ static int x_accel = 0, y_accel = 0, z_accel = 0; //Keeps track of most recent a
 static int x_prev = 0, y_prev = 0, z_prev = 0;    //2nd most recent accelerometer reading
 static int sleep_threshold[4] = {5, 10, 20, 30};
 
+static void main_window_load(Window *window);
+static void menu_select_callback(int index, void *ctx);
+static void main_window_unload(Window *window);
 
 
-static void menu_select_callback(int index, void *ctx) {
-  // Here we just change the subtitle to a literal string
-  first_menu_items[index].subtitle = "You've hit select here!";
-  // Mark the layer to be updated
-  layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));
-}
+
 
 // This initializes the menu upon window load
 static void menu_window_load(Window *window) {
@@ -54,32 +52,13 @@ static void menu_window_load(Window *window) {
     .subtitle = "Here's a subtitle",
     .callback = menu_select_callback,
   };
-  /*first_menu_items[num_a_items++] = (SimpleMenuItem){
-    .title = "Third Item",
-    .subtitle = "This has an icon",
-    .callback = menu_select_callback,
-    // This is how you would give a menu item an icon
-    .icon = menu_icon_image,
-  };
-
-  // This initializes the second section
-  second_menu_items[0] = (SimpleMenuItem){
-    .title = "Special Item",
-    // You can use different callbacks for your menu items
-    .callback = special_select_callback,
-  };*/
 
   // Bind the menu items to the corresponding menu sections
   menu_sections[0] = (SimpleMenuSection){
     .num_items = NUM_MENU_ITEMS,
     .items = first_menu_items,
   };
-  /*menu_sections[1] = (SimpleMenuSection){
-    // Menu sections can also have titles as well
-    .title = "Yet Another Section",
-    .num_items = NUM_SECOND_MENU_ITEMS,
-    .items = second_menu_items,
-  };*/
+
 
   // Now we prepare to initialize the simple menu layer
   // We need the bounds to specify the simple menu layer's viewport size
@@ -133,6 +112,31 @@ enum App_State get_state(int seconds){
     return level1;
   }
   else return awake;
+}
+
+static void menu_select_callback(int index, void *ctx) {
+  if (index == 0){
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "NOW WE WILL BEGIN");
+    //start the new window and push it 
+    s_main_window = window_create();
+  
+    window_set_window_handlers(s_main_window, (WindowHandlers) {
+      .load = main_window_load,
+      .unload = main_window_unload
+    });
+    
+    window_stack_push(s_main_window, true);
+    
+  }
+  else {
+    first_menu_items[index].subtitle = "You've hit select here!";
+    layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));
+  }
+  
+  /*// Here we just change the subtitle to a literal string
+  first_menu_items[index].subtitle = "You've hit select here!";
+  // Mark the layer to be updated
+  layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));*/
 }
 
 static void data_handler(AccelData *data, uint32_t num_samples) {
@@ -221,6 +225,13 @@ static void click_config_provider(void *context) {
 
 static void main_window_load(Window *window) {
   
+  window_set_click_config_provider(window, click_config_provider);
+
+  tick_timer_service_subscribe(SECOND_UNIT, tick_handler); //Sets the pebble to call the handler every second
+  
+  int num_samples = 10;
+  accel_data_service_subscribe(num_samples, data_handler);
+  accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
   //Sets up the text layer in a rectangle
   s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
   
@@ -239,6 +250,7 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer); //Destroys the layer to free up memory
+  window_destroy(s_main_window);
 }
 
 static void init() {

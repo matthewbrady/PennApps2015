@@ -21,12 +21,12 @@ static int sleep_threshold[4] = {5, 10, 20, 30};
 
 //Tracks whether the watch is moving or not
 //Sensitivity should be updated after testing
-bool moving() { 
+bool moving(int sensitivity) { 
   
   //Checks to see if watch has moved by 50 units on any axis
-  if ((x_accel >= x_prev + 50) || (x_accel <= x_prev - 50) ||
-        (y_accel >= y_prev + 50) || (y_accel <= y_prev - 50) ||
-        (z_accel >= z_prev + 50) || (z_accel <= z_prev - 50)) {
+  if ((x_accel >= x_prev + sensitivity) || (x_accel <= x_prev - sensitivity) ||
+        (y_accel >= y_prev + sensitivity) || (y_accel <= y_prev - sensitivity) ||
+        (z_accel >= z_prev + sensitivity) || (z_accel <= z_prev - sensitivity)) {
     //If yes, we know the watch was moving
     return true;
   }
@@ -82,7 +82,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
   enum App_State sleep_state = get_state(secondCount);
   
-  if (moving() && (sleep_state != ringing)){
+  if (moving(50) && (sleep_state != ringing)){
     secondCount = 0;
     sleep_state = awake;
   }
@@ -112,6 +112,16 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
       break;
     
   }
+}
+
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  secondCount = 0;
+  text_layer_set_text(s_time_layer, "Try to stay awake!");
+}
+
+static void click_config_provider(void *context) {
+  // Register the ClickHandlers
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
 }
 
 
@@ -156,6 +166,8 @@ static void init() {
     .load = main_window_load,
     .unload = main_window_unload
   });
+  
+  window_set_click_config_provider(s_main_window, click_config_provider);
   
   window_stack_push(s_main_window, true);
 }

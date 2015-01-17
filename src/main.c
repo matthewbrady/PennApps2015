@@ -1,9 +1,23 @@
 #include <pebble.h>
+  
+#define SLEEP_AFTER_MOVE_TIME 5000
+
+enum App_State {
+  awake,
+  level1,
+  level2,
+  level3,
+  ringing    
+};
+  
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 static int secondCount = 0; //Keeps track of how many seconds since user has moved
 static int x_accel = 0, y_accel = 0, z_accel = 0; //Keeps track of most recent accelerometer reading
 static int x_prev = 0, y_prev = 0, z_prev = 0;    //2nd most recent accelerometer reading
+static int sleep_threshold[4] = {5, 10, 20, 30};
+
+
 
 //Tracks whether the watch is moving or not
 //Sensitivity should be updated after testing
@@ -47,13 +61,66 @@ static void data_handler(AccelData *data, uint32_t num_samples) {
   
 }
 
+enum App_State get_state(int seconds){
+  if (seconds>=sleep_threshold[3]){
+    return ringing;
+  }
+  else if (seconds>=sleep_threshold[2]){
+    return level3;
+  }
+  else if (seconds>=sleep_threshold[1]){
+    return level2;
+  }
+  else if (seconds>=sleep_threshold[0]){
+    return level1;
+  }
+  else return awake;
+}
+
 //Calls the function every x where x is units_changed variable in the init() function (using seconds for now)
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
-  //Handling each second
+  enum App_State sleep_state = get_state(secondCount);
+  
+  if (moving()){
+    secondCount = 0;
+    sleep_state = awake;
+  }
+  
+  switch (sleep_state) {
+    case awake:
+      text_layer_set_text(s_time_layer, "Good job!");
+      psleep(sleep_threshold[0]*1000);
+      secondCount+=sleep_threshold[0];//note:this is a special case because it sleeps for the entire intverval, essentially waiting for level1
+      break;
+    case level1:
+      text_layer_set_text(s_time_layer, "Feeling tired?");
+      secondCount++;
+      break;
+    case level2:
+      text_layer_set_text(s_time_layer, "Asleep?");
+      secondCount++;
+      break;
+    case level3:
+      text_layer_set_text(s_time_layer, "Buzzer coming in 10...");
+      secondCount++;
+      break;
+    case ringing:
+      text_layer_set_text(s_time_layer, "Wakey wakey!");
+      int counter = 0;
+      while (counter < 10) { //Gives 10 long pulses with 1 second of space between each
+        vibes_long_pulse();
+        psleep(1000);
+        counter++;        
+      }
+      secondCount = 0;
+      break;
+    
+  }
+  /*//Handling each second
   if (moving()) {
       text_layer_set_text(s_time_layer, "Good job!");
-      psleep(5000); //Sleeps the watch for 5 seconds
+      psleep(SLEEP_AFTER_MOVE_TIME); //Sleeps the watch until it is necessary to check for sleeping again
       secondCount = 0; //Resets the counter for a fresh start
   } 
   else {
@@ -88,9 +155,9 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     }
     else {
       secondCount++;
-    }
-  }
+    }*/
 }
+
 
 static void main_window_load(Window *window) {
   

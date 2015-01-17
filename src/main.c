@@ -19,14 +19,15 @@ static int sleep_threshold[4] = {5, 10, 20, 30};
 
 
 
+
 //Tracks whether the watch is moving or not
 //Sensitivity should be updated after testing
-bool moving() { 
+bool moving(int sensitivity) { 
   
   //Checks to see if watch has moved by 50 units on any axis
-  if ((x_accel >= x_prev + 50) || (x_accel <= x_prev - 50) ||
-        (y_accel >= y_prev + 50) || (y_accel <= y_prev - 50) ||
-        (z_accel >= z_prev + 50) || (z_accel <= z_prev - 50)) {
+  if ((x_accel >= x_prev + sensitivity) || (x_accel <= x_prev - sensitivity) ||
+        (y_accel >= y_prev + sensitivity) || (y_accel <= y_prev - sensitivity) ||
+        (z_accel >= z_prev + sensitivity) || (z_accel <= z_prev - sensitivity)) {
     //If yes, we know the watch was moving
     return true;
   }
@@ -37,11 +38,34 @@ bool moving() {
 
 }
 
+enum App_State get_state(int seconds){
+  if (seconds>=sleep_threshold[3]){
+    return ringing;
+  }
+  else if (seconds>=sleep_threshold[2]){
+    return level3;
+  }
+  else if (seconds>=sleep_threshold[1]){
+    return level2;
+  }
+  else if (seconds>=sleep_threshold[0]){
+    return level1;
+  }
+  else return awake;
+}
+
 static void data_handler(AccelData *data, uint32_t num_samples) {
   /*Needed to get the data from the accelerometer
   The 'data' variable has everything we need and has attributes x y and z
   'num_samples' is how many sample we want for each cycle of sampling ("We're at 10Hz")
   Only using one to conserve memory/battery*/
+  
+  //This block stops the pebble from vibrating if shaken
+  enum App_State sleep_state = get_state(secondCount);
+  if (sleep_state == ringing && moving(200)) {
+    secondCount = 0;
+    sleep_state = awake;
+  }
   
   if (x_accel == 0 && y_accel == 0 && z_accel == 0) {
     x_accel = data[0].x;    //If this is the first recording, then just record the first values
@@ -61,28 +85,12 @@ static void data_handler(AccelData *data, uint32_t num_samples) {
   
 }
 
-enum App_State get_state(int seconds){
-  if (seconds>=sleep_threshold[3]){
-    return ringing;
-  }
-  else if (seconds>=sleep_threshold[2]){
-    return level3;
-  }
-  else if (seconds>=sleep_threshold[1]){
-    return level2;
-  }
-  else if (seconds>=sleep_threshold[0]){
-    return level1;
-  }
-  else return awake;
-}
-
 //Calls the function every x where x is units_changed variable in the init() function (using seconds for now)
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  
+  static char buff[128];
   enum App_State sleep_state = get_state(secondCount);
   
-  if (moving() && (sleep_state != ringing)){
+  if (moving(50) && (sleep_state != ringing)){
     secondCount = 0;
     sleep_state = awake;
   }
@@ -90,8 +98,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   switch (sleep_state) {
     case awake:
       text_layer_set_text(s_time_layer, "Good job!");
-      psleep(sleep_threshold[0]*1000);
-      secondCount+=sleep_threshold[0];//note:this is a special case because it sleeps for the entire interval, essentially waiting for level1
+      secondCount++;//note:this is a special case because it sleeps for the entire interval, essentially waiting for level1
       break;
     case level1:
       text_layer_set_text(s_time_layer, "Feeling tired?");
@@ -102,7 +109,8 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
       secondCount++;
       break;
     case level3:
-      text_layer_set_text(s_time_layer, "Buzzer coming in 10...");
+      snprintf(buff, sizeof(buff), "Buzzer coming in %d...", 30-secondCount);
+      text_layer_set_text(s_time_layer, buff);
       secondCount++;
       break;
     case ringing:
@@ -110,9 +118,28 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
       vibes_long_pulse();
       secondCount++;
       break;
-    
   }
 }
+
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  enum App_State sleep_state = get_state(secondCount);
+  if (sleep_state == ringing) {
+    secondCount = 0;
+    text_layer_set_text(s_time_layer, "Try to stay awake!");
+  }
+}
+
+static void wakeup_handler(WakeupId id, int32_t reason){
+  return;
+}
+
+static void click_config_provider(void *context) {
+  
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
+  
+}
+
+
 
 
 static void main_window_load(Window *window) {
@@ -142,11 +169,11 @@ static void init() {
   //window_set_click_config_provider(s_main_window, click_config_provider);
   
   /*Sets up the accelerometer
-    -Takes one sample (num_samples) every time data is collected
+    -Takes ten samples (num_samples) every time data is collected
     -Gives the data to the data_handler function
     -Sets sampling rate to 10Hz
   */
-  int num_samples = 1;
+  int num_samples = 10;
   accel_data_service_subscribe(num_samples, data_handler);
   accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
   
@@ -157,7 +184,16 @@ static void init() {
     .unload = main_window_unload
   });
   
+  window_set_click_config_provider(s_main_window, click_config_provider);
+  
   window_stack_push(s_main_window, true);
+  
+  wakeup_service_subscribe(wakeup_handler);
+  
+  time_t future_time = time(NULL) + 30;
+  
+  wakeup_schedule(future_time, 1, false);
+  
 }
 
 static void deinit() {

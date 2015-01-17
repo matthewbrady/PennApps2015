@@ -4,13 +4,13 @@
         ""
     ],
     "companyName": "ethan.weinberger@yale.edu",
-    "longName": "PennApps2015",
+    "longName": "Starter",
     "projectType": "native",
     "resources": {
         "media": []
     },
-    "shortName": "PennApps2015",
-    "uuid": "40c5c64c-4ff1-4003-b922-a9b19113f53d",
+    "shortName": "Starter",
+    "uuid": "5887659b-1c4d-4525-a978-d8d8fa0a9f19",
     "versionCode": 1,
     "versionLabel": "1.0",
     "watchapp": {

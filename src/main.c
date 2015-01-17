@@ -82,7 +82,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
   enum App_State sleep_state = get_state(secondCount);
   
-  if (moving()){
+  if (moving() && (sleep_state != ringing)){
     secondCount = 0;
     sleep_state = awake;
   }
@@ -91,7 +91,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     case awake:
       text_layer_set_text(s_time_layer, "Good job!");
       psleep(sleep_threshold[0]*1000);
-      secondCount+=sleep_threshold[0];//note:this is a special case because it sleeps for the entire intverval, essentially waiting for level1
+      secondCount+=sleep_threshold[0];//note:this is a special case because it sleeps for the entire interval, essentially waiting for level1
       break;
     case level1:
       text_layer_set_text(s_time_layer, "Feeling tired?");
@@ -107,55 +107,11 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
       break;
     case ringing:
       text_layer_set_text(s_time_layer, "Wakey wakey!");
-      int counter = 0;
-      while (counter < 10) { //Gives 10 long pulses with 1 second of space between each
-        vibes_long_pulse();
-        psleep(1000);
-        counter++;        
-      }
-      secondCount = 0;
+      vibes_long_pulse();
+      secondCount++;
       break;
     
   }
-  /*//Handling each second
-  if (moving()) {
-      text_layer_set_text(s_time_layer, "Good job!");
-      psleep(SLEEP_AFTER_MOVE_TIME); //Sleeps the watch until it is necessary to check for sleeping again
-      secondCount = 0; //Resets the counter for a fresh start
-  } 
-  else {
-    //If it has been five seconds, give a warning
-    if (secondCount == 5) {
-      text_layer_set_text(s_time_layer, "Feeling tired?");
-      secondCount++;
-    }
-    //Another warning
-    else if (secondCount == 10) {
-      text_layer_set_text(s_time_layer, "Asleep?");
-      secondCount++;
-    }
-    //Last warning
-    else if (secondCount == 20) {
-      text_layer_set_text(s_time_layer, "Buzzer coming in 10...");
-      secondCount++;
-    }
-    //Start buzzing
-    else if (secondCount >= 30) {
-      text_layer_set_text(s_time_layer, "Wakey wakey!");
-      
-      int counter = 0;
-      while (counter < 10) { //Gives 10 long pulses with 1 second of space between each
-        vibes_long_pulse();
-        psleep(1000);
-        counter++;
-        
-      }
-      secondCount = 0;
-      psleep(10000); //Sleeps for 10 seconds
-    }
-    else {
-      secondCount++;
-    }*/
 }
 
 

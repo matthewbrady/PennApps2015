@@ -21,7 +21,7 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (hours < 24) {
       hours++;
     }
-    else if (hours == 24) {
+    else {
       hours = 0;
     }
   }
@@ -29,7 +29,7 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (minutes < 60) {
       minutes++;
     }
-    else if (minutes == 60) {
+    else {
       minutes = 0;
     }
   }
@@ -45,22 +45,22 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (hours > 0) {
       hours--;
     }
-    else if (hours == 0) {
-      hours = 24;
+    else {
+      hours = 23;
     }
   }
   else {
     if (minutes > 0) {
       minutes--;
     }
-    else if (minutes == 0) {
-      minutes = 60;
+    else {
+      minutes = 59;
     } 
   }
   
   snprintf(hour_buffer, 128, "%d", hours);
   text_layer_set_text(s_hour_layer, hour_buffer);
-  snprintf(min_buffer, 128, "%d", minutes);
+  snprintf(min_buffer, 128, "%02d", minutes);
   text_layer_set_text(s_minute_layer, min_buffer);
 }
 

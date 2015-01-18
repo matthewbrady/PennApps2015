@@ -2,8 +2,6 @@
 #include <pebble.h>
 #define SCHEDULES_H_
 
-  
-
 typedef struct  {
   int begin_time_mins;//begining time in minutes since midnight (12:00am =0 )
   //int duration;//duration in mins

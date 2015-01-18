@@ -357,7 +357,7 @@ static void init() {
   
   window_stack_push(s_main_window, true);*/
   wakeup_service_subscribe(wakeup_handler);
-
+  schedule_all();
 }
 
 static void deinit() {

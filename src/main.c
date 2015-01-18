@@ -1,7 +1,8 @@
 #include <pebble.h>
 #include "date_select_menu.h"
 #include "time_select_menu.h"
-
+#include "schedules.h"
+  
 #define NUM_MENU_SECTIONS 1
 #define NUM_MENU_ITEMS 2
 
@@ -29,7 +30,7 @@ static int sleep_threshold[4] = {5, 10, 20, 30};
 static void main_window_load(Window *window);
 static void menu_select_callback(int index, void *ctx);
 static void main_window_unload(Window *window);
-
+static bool woken = false; 
 
 
 
@@ -192,7 +193,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   switch (sleep_state) {
     case awake:
       text_layer_set_text(s_time_layer, "Good job!");
-      secondCount++;//note:this is a special case because it sleeps for the entire interval, essentially waiting for level1
+      secondCount++;
       break;
     case level1:
       text_layer_set_text(s_time_layer, "Feeling tired?");
@@ -264,19 +265,12 @@ static void main_window_unload(Window *window) {
 
 static void wakeup_handler(WakeupId id, int32_t reason) {
   // The app has woken! Do what you will
-  //need to push striaght to wakeup mode 
-  s_day_window = window_create();
-
-  // Setup the window handlers
-  window_set_window_handlers(s_day_window, (WindowHandlers) {
-    .load = date_select_menu_load,
-    .unload = date_select_menu_unload
-  });
-
-  window_stack_push(s_day_window, true /* Animated */);
+  woken = true;
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "wakeup_handler");
 }
 
 static void init() {
+  clear_all();
   s_menu_window = window_create();
 
   // Setup the window handlers
@@ -286,7 +280,20 @@ static void init() {
   });
 
   window_stack_push(s_menu_window, true /* Animated */);
- 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
+
+  if (woken){
+  //need to push striaght to wakeup mode 
+  s_day_window = window_create();
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "pushing");
+  // Setup the window handlers
+  window_set_window_handlers(s_day_window, (WindowHandlers) {
+    .load = date_select_menu_load,
+    .unload = date_select_menu_unload
+  });
+
+  window_stack_push(s_day_window, true /* Animated */);
+  }
   
   //tick_timer_service_subscribe(SECOND_UNIT, tick_handler); //Sets the pebble to call the handler every second
   //window_set_click_config_provider(s_main_window, click_config_provider);

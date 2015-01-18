@@ -35,7 +35,7 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   }
   snprintf(hour_buffer, 128, "%d", hours);
   text_layer_set_text(s_hour_layer, hour_buffer);
-  snprintf(min_buffer, 128, "%d", minutes);
+  snprintf(min_buffer, 128, "%02d", minutes);
   text_layer_set_text(s_minute_layer, min_buffer);
   
 }

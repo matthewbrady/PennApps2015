@@ -13,3 +13,4 @@ typedef struct  {
 
 int interval_write(interval interval_object);
 void schedule_all();
+void clear_all();

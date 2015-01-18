@@ -47,3 +47,13 @@ void schedule_all(){
     }
   }
 }
+
+void clear_all(){
+  int i;
+  for (i=0; i<SAVE_LIMIT; i++){
+    if(persist_exists(i)){
+      persist_delete(i);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Deleting id: %d", i);
+    }
+  }
+}

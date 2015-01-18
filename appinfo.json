@@ -13,11 +13,6 @@
                 "menuIcon": true,
                 "name": "icon",
                 "type": "png"
-            },
-            {
-                "file": "images/wakeyWakey.png",
-                "name": "WAKEY_IMAGE",
-                "type": "png"
             }
         ]
     },

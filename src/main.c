@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "date_select_menu.h"
+#include "time_select_menu.h"
 
 #define NUM_MENU_SECTIONS 1
 #define NUM_MENU_ITEMS 2
@@ -17,7 +18,7 @@ SimpleMenuLayer *simple_menu_layer;
 static SimpleMenuSection menu_sections[NUM_MENU_SECTIONS];
 static SimpleMenuItem first_menu_items[NUM_MENU_ITEMS];
 
-static Window *s_main_window;
+
 static Window *s_day_window;
 static TextLayer *s_time_layer;
 static int secondCount = 0; //Keeps track of how many seconds since user has moved
@@ -258,7 +259,6 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer); //Destroys the layer to free up memory
-  tick_timer_service_unsubscribe(); //Sets the pebble to call the handler every second
   window_destroy(s_main_window);
 }
 

@@ -2,6 +2,7 @@
   
 #define DAY_LIST_LENGTH 5
 #define NUM_MENU_SECTIONS 1
+Window *s_main_window;
   
 void date_select_menu_load(Window *window);
 void date_select_menu_unload(Window *window);

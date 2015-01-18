@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "date_select_menu.h"
-  
+#include "time_select_menu.h"
+Window *s_main_window;
 
 
 void date_select_menu_load(Window *window) {
@@ -54,5 +55,17 @@ void date_select_menu_unload(Window *window) {
 }
 
 static void menu_select_callback(int index, void *ctx) {
+  
+    time_select_window= window_create();
+  
+    window_set_window_handlers(time_select_window, (WindowHandlers) {
+      .load = time_select_window_load,
+      .unload = time_select_window_unload
+    });
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "GOT HERE 4");
+    
+    
+    window_stack_push(time_select_window, true);
+  
 
 }

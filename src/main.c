@@ -34,6 +34,29 @@ static void menu_select_callback(int index, void *ctx);
 static void main_window_unload(Window *window);
 static bool woken = false; 
 
+// Images
+static GBitmap *s_example_bitmap;
+static BitmapLayer *s_bitmap_layer;
+static bool image = false;
+static Layer *layer;
+
+
+
+static void layer_update_callback(Layer *me, GContext* ctx) {
+  // We make sure the dimensions of the GRect to draw into
+  // are equal to the size of the bitmap--otherwise the image
+  // will automatically tile. Which might be what *you* want.
+
+  GRect bounds = image->bounds;
+
+  graphics_draw_bitmap_in_rect(ctx, image, (GRect) { .origin = { 5, 5 }, .size = bounds.size });
+
+  graphics_draw_bitmap_in_rect(ctx, image, (GRect) { .origin = { 80, 60 }, .size = bounds.size });
+}
+
+
+
+
 
 
 // This initializes the menu upon window load
@@ -81,11 +104,13 @@ static void menu_window_load(Window *window) {
 
   // Add it to the window for display
   layer_add_child(menu_window_layer, simple_menu_layer_get_layer(simple_menu_layer));
+  
+  
 }
 
 void menu_window_unload(Window *window) {
   simple_menu_layer_destroy(simple_menu_layer);
-
+  
   // Cleanup the menu icon
   //gbitmap_destroy(menu_icon_image);
 }
@@ -228,6 +253,15 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
       secondCount++;
       break;
     case ringing:
+      image = !image;
+    
+      Layer *window_layer = window_get_root_layer(s_main_window);
+      GRect bounds = layer_get_frame(window_layer);
+      layer = layer_create(bounds);
+      layer_set_update_proc(layer, layer_update_callback);
+      layer_add_child(window_layer, layer);
+    
+      bitmap_layer_set_bitmap(s_bitmap_layer, s_example_bitmap);
       text_layer_set_text(s_time_layer, "Wakey wakey!");
       vibes_long_pulse();
       secondCount++;
@@ -261,6 +295,10 @@ static void main_window_load(Window *window) {
   int num_samples = 10;
   accel_data_service_subscribe(num_samples, data_handler);
   accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+  
+  //Sets up the image layer in a rectangle
+  s_bitmap_layer = bitmap_layer_create(GRect(5, 5, 48, 48));
+  
   //Sets up the text layer in a rectangle
   s_time_layer = text_layer_create(GRect(0, 50, 144, 100));
   
@@ -273,11 +311,23 @@ static void main_window_load(Window *window) {
   //Sets up the font for the layer
   text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   
+  if(image) {
+    layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_bitmap_layer));
+  }
+  
+  
   //Adds the layer to the window
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
+  
 }
 
 static void main_window_unload(Window *window) {
+  // Cleanup the wakeyWakey icon
+  if(image) {
+    gbitmap_destroy(s_example_bitmap);
+    image = !image;
+  }
+
   text_layer_destroy(s_time_layer); //Destroys the layer to free up memory
   tick_timer_service_unsubscribe();
   window_destroy(s_main_window);
@@ -300,7 +350,10 @@ static void init() {
 
   window_stack_push(s_menu_window, true /* Animated */);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
-
+  
+  // Image value initialization
+  s_example_bitmap = gbitmap_create_with_resource(RESOURCE_ID_wakeyWakey);
+  
   if (launch_reason()==APP_LAUNCH_WAKEUP){
     APP_LOG(APP_LOG_LEVEL_DEBUG, "NOW WE WILL BEGIN");
     //start the new window and push it 
@@ -343,7 +396,12 @@ static void init() {
 }
 
 static void deinit() {
+
+  // Destroy image
+  bitmap_layer_destroy(s_bitmap_layer);
+  
   window_destroy(s_menu_window);
+  
   //window_destroy(s_main_window);
 }
 

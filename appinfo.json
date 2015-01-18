@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/wakeyWakey.png",
+                "name": "wakeyWakey",
+                "type": "png"
+            },
+            {
                 "file": "images/icon2.png",
                 "menuIcon": true,
                 "name": "icon",

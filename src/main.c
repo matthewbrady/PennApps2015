@@ -47,9 +47,8 @@ static void menu_window_load(Window *window) {
   };
   // The menu items appear in the order saved in the menu items array
   first_menu_items[num_a_items++] = (SimpleMenuItem){
-    .title = "Scheduled Classes",
+    .title = "Add a class",
     // You can also give menu items a subtitle
-    .subtitle = "Here's a subtitle",
     .callback = menu_select_callback,
   };
 
@@ -129,8 +128,7 @@ static void menu_select_callback(int index, void *ctx) {
     
   }
   else {
-    first_menu_items[index].subtitle = "You've hit select here!";
-    layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));
+    
   }
   
   /*// Here we just change the subtitle to a literal string

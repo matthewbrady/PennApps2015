@@ -1,4 +1,6 @@
 #include <pebble.h>
+#include "date_select_menu.h"
+#include "time_select_menu.h"
 
 #define NUM_MENU_SECTIONS 1
 #define NUM_MENU_ITEMS 2
@@ -12,11 +14,12 @@ enum App_State {
 };
   
 static Window *s_menu_window;
-static SimpleMenuLayer *simple_menu_layer;
+SimpleMenuLayer *simple_menu_layer;
 static SimpleMenuSection menu_sections[NUM_MENU_SECTIONS];
 static SimpleMenuItem first_menu_items[NUM_MENU_ITEMS];
 
-static Window *s_main_window;
+
+static Window *s_day_window;
 static TextLayer *s_time_layer;
 static int secondCount = 0; //Keeps track of how many seconds since user has moved
 static int x_accel = 0, y_accel = 0, z_accel = 0; //Keeps track of most recent accelerometer reading
@@ -42,17 +45,16 @@ static void menu_window_load(Window *window) {
   // This is an example of how you'd set a simple menu item
   first_menu_items[num_a_items++] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "Stay Awake!",
+    .title = "Keep me awake!",
     .callback = menu_select_callback,
   };
-  // The menu items appear in the order saved in the menu items array
-  first_menu_items[num_a_items++] = (SimpleMenuItem){
-    .title = "Add a class",
-    // You can also give menu items a subtitle
-    .callback = menu_select_callback,
-  };
-
   // Bind the menu items to the corresponding menu sections
+  first_menu_items[num_a_items++] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "Add a class",
+    .callback = menu_select_callback,
+  };
+  
   menu_sections[0] = (SimpleMenuSection){
     .num_items = NUM_MENU_ITEMS,
     .items = first_menu_items,
@@ -127,7 +129,16 @@ static void menu_select_callback(int index, void *ctx) {
     window_stack_push(s_main_window, true);
     
   }
-  else {
+  else if (index == 1) {
+    s_day_window = window_create();
+
+    // Setup the window handlers
+    window_set_window_handlers(s_day_window, (WindowHandlers) {
+      .load = date_select_menu_load,
+      .unload = date_select_menu_unload
+    });
+
+    window_stack_push(s_day_window, true /* Animated */);
     
   }
   

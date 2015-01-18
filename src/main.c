@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "date_select_menu.h"
 #include "time_select_menu.h"
+#include "view_classes.h"
 #include "schedules.h"
   
 #define NUM_MENU_SECTIONS 1
@@ -21,6 +22,7 @@ static SimpleMenuItem first_menu_items[NUM_MENU_ITEMS];
 
 
 static Window *s_day_window;
+static Window *s_classes_window;
 static TextLayer *s_time_layer;
 static int secondCount = 0; //Keeps track of how many seconds since user has moved
 static int x_accel = 0, y_accel = 0, z_accel = 0; //Keeps track of most recent accelerometer reading
@@ -147,6 +149,16 @@ static void menu_select_callback(int index, void *ctx) {
 
     window_stack_push(s_day_window, true /* Animated */);
     
+  }
+  else if (index == 2) {
+    s_classes_window = window_create();
+    
+    window_set_window_handlers(s_classes_window, (WindowHandlers) {
+      .load = view_classes_menu_load,
+      .unload = view_classes_menu_unload
+    });
+    
+    window_stack_push(s_classes_window, true); 
   }
   
   

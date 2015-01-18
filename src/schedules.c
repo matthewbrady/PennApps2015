@@ -58,3 +58,13 @@ void clear_all(){
     }
   }
 }
+
+int number_stored(){
+  int i;
+  int count = 0;
+  for (i=0; i<SAVE_LIMIT; i++){
+    if (persist_exists(i))count++;
+  }
+  return count;  
+}
+

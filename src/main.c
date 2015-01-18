@@ -265,7 +265,6 @@ static void main_window_unload(Window *window) {
 
 static void wakeup_handler(WakeupId id, int32_t reason) {
   // The app has woken! Do what you will
-  woken = true;
   APP_LOG(APP_LOG_LEVEL_DEBUG, "wakeup_handler");
 }
 
@@ -282,17 +281,17 @@ static void init() {
   window_stack_push(s_menu_window, true /* Animated */);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
-  if (woken){
-  //need to push striaght to wakeup mode 
-  s_day_window = window_create();
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "pushing");
-  // Setup the window handlers
-  window_set_window_handlers(s_day_window, (WindowHandlers) {
-    .load = date_select_menu_load,
-    .unload = date_select_menu_unload
-  });
+  if (launch_reason()==APP_LAUNCH_WAKEUP){
+    //need to push striaght to wakeup mode 
+    s_main_window = window_create();
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "pushing");
+    // Setup the window handlers
+    window_set_window_handlers(s_main_window, (WindowHandlers) {
+      .load = main_window_load,
+      .unload = main_window_unload
+    });
 
-  window_stack_push(s_day_window, true /* Animated */);
+    window_stack_push(s_day_window, true /* Animated */);
   }
   
   //tick_timer_service_subscribe(SECOND_UNIT, tick_handler); //Sets the pebble to call the handler every second

@@ -6,19 +6,44 @@ static TextLayer *s_minute_layer;
 Window *time_select_menu;
 int hours = 12;
 int minutes = 0;
+char hour_buffer[128];
+char min_buffer[128];
+bool edit_hours = true;
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(s_hour_layer, "Up pressed!");
-  hours--;
+  
+  snprintf(hour_buffer, 128, "%d", hours);
+  
+  text_layer_set_text(s_hour_layer, hour_buffer);
+  if (edit_hours) {
+    if (hours < 24) {
+      hours++;
+    }
+    else if (hours == 24) {
+      hours = 0;
+    }
+  }
+  else {
+    if (minutes < 60) {
+      minutes++;
+    }
+    else if (minutes == 60) {
+      minutes = 0;
+    }
+  }
+  
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  char hour_buffer[128];
-  hours++;
-  snprintf(hour_buffer, 128, "Got here: %d", hours);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, hour_buffer);
+  snprintf(hour_buffer, 128, "%d", hours);
+  
   text_layer_set_text(s_hour_layer, hour_buffer);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, text_layer_get_text(s_hour_layer));
+  if (hours > 0) {
+    hours--;
+  }
+  else if (hours == 0) {
+    hours = 24;
+  }
 }
 
 static void click_config_provider(void *context) {

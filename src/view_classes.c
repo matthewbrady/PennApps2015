@@ -5,13 +5,12 @@
   
 Window *s_main_window;
 
-char buff[128];
+
 
 
 void view_classes_menu_load(Window *window) {
 
   int numClasses = number_stored();
-  printf("classes: %d", numClasses);
   SimpleMenuItem third_menu_items[numClasses];
 
   int num_a_items = 0;  
@@ -20,10 +19,6 @@ void view_classes_menu_load(Window *window) {
     if(persist_exists(i)){
       interval class;
       persist_read_data(i, &class, sizeof(class));
-      snprintf(buff, 128, "%d", class.day);
-      third_menu_items[num_a_items++] = (SimpleMenuItem) {
-        .title = buff
-      };
       
       switch (class.day) {
         case 1:
@@ -66,7 +61,7 @@ void view_classes_menu_load(Window *window) {
   }
   
   menu_sections[0] = (SimpleMenuSection){
-    .num_items = number_stored(),
+    .num_items = 10,
     .items = third_menu_items,
   };
   Layer *menu_window_layer = window_get_root_layer(window);

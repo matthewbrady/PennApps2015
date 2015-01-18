@@ -88,10 +88,21 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   }
 }
 
+// Back test
+static void back_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (!edit_hours) {
+    edit_hours = !edit_hours;
+    text_layer_set_text(s_banner_layer, "Choose the hour:");
+  } else {
+    window_stack_pop(true /* Animated */);
+  }
+}
+
 static void click_config_provider(void *context) {
   
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, back_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
   
 }
@@ -139,10 +150,10 @@ void time_select_window_load(Window *window) {
   text_layer_set_text(s_banner_layer, "Choose the hour:");
   
   //Sets up the font for the layer
-  text_layer_set_font(s_hour_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-  text_layer_set_font(s_minute_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-  text_layer_set_font(s_colon_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-  text_layer_set_font(s_banner_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
+  text_layer_set_font(s_hour_layer, fonts_get_system_font(FONT_KEY_DROID_SERIF_28_BOLD));
+  text_layer_set_font(s_minute_layer, fonts_get_system_font(FONT_KEY_DROID_SERIF_28_BOLD));
+  text_layer_set_font(s_colon_layer, fonts_get_system_font(FONT_KEY_DROID_SERIF_28_BOLD));
+  text_layer_set_font(s_banner_layer, fonts_get_system_font(FONT_KEY_DROID_SERIF_28_BOLD));
   
   //Adds the layer to the window
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_hour_layer));

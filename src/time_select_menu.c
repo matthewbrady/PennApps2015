@@ -111,7 +111,7 @@ void time_select_window_load(Window *window) {
   
   
   //Sets up the colors and content of the layer
-  s_banner_layer = text_layer_create(GRect(15, 5, 100, 50));
+  s_banner_layer = text_layer_create(GRect(5, 5, 150, 100));
   s_hour_layer= text_layer_create(GRect(15, 55, 100, 50));
   s_colon_layer = text_layer_create(GRect(30, 54, 100, 50));
   s_minute_layer = text_layer_create(GRect(20, 55, 144, 50));
@@ -139,10 +139,10 @@ void time_select_window_load(Window *window) {
   text_layer_set_text(s_banner_layer, "Choose the hour:");
   
   //Sets up the font for the layer
-  text_layer_set_font(s_hour_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_font(s_minute_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_font(s_colon_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_font(s_banner_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_font(s_hour_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(s_minute_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(s_colon_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(s_banner_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   
   //Adds the layer to the window
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_hour_layer));

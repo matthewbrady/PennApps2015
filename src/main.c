@@ -4,7 +4,7 @@
 #include "schedules.h"
   
 #define NUM_MENU_SECTIONS 1
-#define NUM_MENU_ITEMS 2
+#define NUM_MENU_ITEMS 3
 
 enum App_State {
   awake,
@@ -46,13 +46,19 @@ static void menu_window_load(Window *window) {
   // This is an example of how you'd set a simple menu item
   first_menu_items[num_a_items++] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "Keep me awake!",
+    .title = "Keep Me Awake!",
     .callback = menu_select_callback,
   };
   // Bind the menu items to the corresponding menu sections
   first_menu_items[num_a_items++] = (SimpleMenuItem){
     // You should give each menu item a title and callback
-    .title = "Add a class",
+    .title = "Add Class",
+    .callback = menu_select_callback,
+  };
+  
+  first_menu_items[num_a_items++] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "My Classes",
     .callback = menu_select_callback,
   };
   
@@ -142,6 +148,7 @@ static void menu_select_callback(int index, void *ctx) {
     window_stack_push(s_day_window, true /* Animated */);
     
   }
+  
   
   /*// Here we just change the subtitle to a literal string
   first_menu_items[index].subtitle = "You've hit select here!";
@@ -243,7 +250,7 @@ static void main_window_load(Window *window) {
   accel_data_service_subscribe(num_samples, data_handler);
   accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
   //Sets up the text layer in a rectangle
-  s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
+  s_time_layer = text_layer_create(GRect(0, 50, 144, 100));
   
   //Sets up the colors and content of the layer
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -252,7 +259,7 @@ static void main_window_load(Window *window) {
   text_layer_set_text(s_time_layer, "Try to stay awake!");
   
   //Sets up the font for the layer
-  text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   
   //Adds the layer to the window
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
@@ -260,6 +267,7 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer); //Destroys the layer to free up memory
+  tick_timer_service_unsubscribe();
   window_destroy(s_main_window);
 }
 

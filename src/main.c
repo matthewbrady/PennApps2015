@@ -262,6 +262,20 @@ static void main_window_unload(Window *window) {
   window_destroy(s_main_window);
 }
 
+static void wakeup_handler(WakeupId id, int32_t reason) {
+  // The app has woken! Do what you will
+  //need to push striaght to wakeup mode 
+  s_day_window = window_create();
+
+  // Setup the window handlers
+  window_set_window_handlers(s_day_window, (WindowHandlers) {
+    .load = date_select_menu_load,
+    .unload = date_select_menu_unload
+  });
+
+  window_stack_push(s_day_window, true /* Animated */);
+}
+
 static void init() {
   s_menu_window = window_create();
 
@@ -297,6 +311,8 @@ static void init() {
   window_set_click_config_provider(s_main_window, click_config_provider);
   
   window_stack_push(s_main_window, true);*/
+  wakeup_service_subscribe(wakeup_handler);
+
 }
 
 static void deinit() {

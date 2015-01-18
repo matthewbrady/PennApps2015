@@ -156,7 +156,7 @@ static void data_handler(AccelData *data, uint32_t num_samples) {
   
   //This block stops the pebble from vibrating if shaken
   enum App_State sleep_state = get_state(secondCount);
-  if (sleep_state == ringing && moving(200)) {
+  if (sleep_state == ringing && moving(900)) {
     secondCount = 0;
     sleep_state = awake;
   }

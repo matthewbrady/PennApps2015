@@ -5,7 +5,7 @@
 #include "schedules.h"
   
 #define NUM_MENU_SECTIONS 1
-#define NUM_MENU_ITEMS 3
+#define NUM_MENU_ITEMS 4
 
 enum App_State {
   awake,
@@ -61,6 +61,12 @@ static void menu_window_load(Window *window) {
   first_menu_items[num_a_items++] = (SimpleMenuItem){
     // You should give each menu item a title and callback
     .title = "My Classes",
+    .callback = menu_select_callback,
+  };
+  
+  first_menu_items[num_a_items++] = (SimpleMenuItem){
+    // You should give each menu item a title and callback
+    .title = "Del. All Classes",
     .callback = menu_select_callback,
   };
   
@@ -126,6 +132,8 @@ enum App_State get_state(int seconds){
 
 static void menu_select_callback(int index, void *ctx) {
   if (index == 0){
+    first_menu_items[3].subtitle = "";
+    layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));
     APP_LOG(APP_LOG_LEVEL_DEBUG, "NOW WE WILL BEGIN");
     //start the new window and push it 
     s_main_window = window_create();
@@ -139,6 +147,8 @@ static void menu_select_callback(int index, void *ctx) {
     
   }
   else if (index == 1) {
+    first_menu_items[3].subtitle = "";
+    layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));
     s_day_window = window_create();
 
     // Setup the window handlers
@@ -151,6 +161,8 @@ static void menu_select_callback(int index, void *ctx) {
     
   }
   else if (index == 2) {
+    first_menu_items[3].subtitle = "";
+    layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));
     s_classes_window = window_create();
     
     window_set_window_handlers(s_classes_window, (WindowHandlers) {
@@ -159,6 +171,12 @@ static void menu_select_callback(int index, void *ctx) {
     });
     
     window_stack_push(s_classes_window, true); 
+  }
+  
+  else if (index == 3) {
+    clear_all();
+    first_menu_items[index].subtitle = "All alarms deleted!";
+    layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer));
   }
   
   

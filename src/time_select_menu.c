@@ -70,6 +70,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
     text_layer_set_text(s_banner_layer, "Now the minutes");
   }
   else if (!edit_hours) {
+    edit_hours = true;
     interval to_save;
     if (weekDay == 6) {
       to_save.day = 1;//Offset by to account for differences in start of the week
@@ -87,12 +88,21 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
     
   }
 }
+static void back_click_handler(ClickRecognizerRef recognizer, void *context) {
+    if (!edit_hours) {
+      edit_hours = !edit_hours;
+      text_layer_set_text(s_banner_layer, "Choose the hour:");
+    } else {
+      window_stack_pop(true /* Animated */);
+  }
+}
 
 static void click_config_provider(void *context) {
   
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_BACK, back_click_handler);
   
 }
   

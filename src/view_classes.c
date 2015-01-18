@@ -4,11 +4,12 @@
   
   
 Window *s_main_window;
+MenuLayer *menu_layer;
 
 char buff[128];
+static interval class;
 
-
-void view_classes_menu_load(Window *window) {
+/*void view_classes_menu_load(Window *window) {
 
   int numClasses = number_stored();
   printf("classes: %d", numClasses);
@@ -16,52 +17,15 @@ void view_classes_menu_load(Window *window) {
 
   int num_a_items = 0;  
   int i;
-  for(i=0; i<10; i++){
+  for(i=0; i<number_stored(); i++){
     if(persist_exists(i)){
-      interval class;
-      persist_read_data(i, &class, sizeof(class));
-      snprintf(buff, 128, "%d", class.day);
-      third_menu_items[num_a_items++] = (SimpleMenuItem) {
-        .title = buff
-      };
       
-      switch (class.day) {
-        case 1:
-          third_menu_items[num_a_items++] = (SimpleMenuItem) {
-            .title = "Sunday"
-          };
-          break;
-        case 2:
-          third_menu_items[num_a_items++] = (SimpleMenuItem) {
-            .title = "Monday"
-          };
-          break;
-        case 3:
-          third_menu_items[num_a_items++] = (SimpleMenuItem) {
-            .title = "Tuesday"
-          };
-          break;
-        case 4:
-          third_menu_items[num_a_items++] = (SimpleMenuItem) {
-            .title = "Wednesday"
-          };
-          break;
-        case 5:
-          third_menu_items[num_a_items++] = (SimpleMenuItem) {
-            .title = "Thursday"
-          };
-          break;
-        case 6:
-          third_menu_items[num_a_items++] = (SimpleMenuItem) {
-            .title = "Friday"
-          };
-          break;
-        case 7:
-          third_menu_items[num_a_items++] = (SimpleMenuItem) {
-            .title = "Saturday"
-          };
-          break;
-      }
+      persist_read_data(i, &class, sizeof(class));
+      
+      third_menu_items[num_a_items++] = (SimpleMenuItem){
+        // You should give each menu item a title and callback
+        .title = "Tuesday",
+      };
     }
   }
   
@@ -77,6 +41,22 @@ void view_classes_menu_load(Window *window) {
 
   // Add it to the window for display
   layer_add_child(menu_window_layer, simple_menu_layer_get_layer(simple_menu_layer3));
+}*/
+
+void view_classes_menu_load(Window *window)
+{
+	//Create it - 12 is approx height of the top bar
+	menu_layer = menu_layer_create(GRect(0, 0, 144, 168 - 16));
+	
+	//Give it its callbacks
+	MenuLayerCallbacks callbacks = {
+		.draw_row = (MenuLayerDrawRowCallback) draw_row_callback,
+		.get_num_rows = (MenuLayerGetNumberOfRowsInSectionsCallback) num_rows_callback,
+	};
+	menu_layer_set_callbacks(menu_layer, NULL, callbacks);
+	
+	//Add to Window
+	layer_add_child(window_get_root_layer(window), menu_layer_get_layer(menu_layer));
 }
 void view_classes_menu_unload(Window *window) {
   simple_menu_layer_destroy(simple_menu_layer3);
@@ -84,4 +64,44 @@ void view_classes_menu_unload(Window *window) {
   // Cleanup the menu icon
   //gbitmap_destroy(menu_icon_image);
   
+}
+
+uint16_t num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *callback_context)
+{
+	return number_stored();
+}
+
+void draw_row_callback(GContext *ctx, Layer *cell_layer, MenuIndex *cell_index, void *callback_context)
+{
+  char * weekday = "";
+  char time_buffer[128];
+  if (persist_exists(cell_index->row)) {
+      interval class;
+      persist_read_data(cell_index->row, &class, sizeof(class));
+      switch (class.day) {
+        case 0:
+          weekday = "Sunday";
+          break;
+        case 1:
+          weekday = "Monday";
+          break;
+        case 2:
+          weekday = "Tuesday";
+          break;
+        case 3:
+          weekday = "Wednesday";
+          break;
+        case 4:
+          weekday = "Thursday";
+          break;
+        case 5:
+          weekday = "Friday";
+          break;
+        case 6:
+          weekday = "Saturday";
+          break;
+      }
+      snprintf(time_buffer, 128, "%d%s%d", class.begin_time_mins/60, ":", class.begin_time_mins%60);
+  }
+  menu_cell_basic_draw(ctx, cell_layer, weekday, time_buffer, NULL);
 }

@@ -19,7 +19,8 @@ static Window *s_menu_window;
 SimpleMenuLayer *simple_menu_layer;
 static SimpleMenuSection menu_sections[NUM_MENU_SECTIONS];
 static SimpleMenuItem first_menu_items[NUM_MENU_ITEMS];
-
+static GBitmap *s_example_bitmap;
+static BitmapLayer *s_bitmap_layer;
 
 static Window *s_day_window;
 static Window *s_classes_window;
@@ -246,6 +247,14 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
       secondCount++;
       break;
     case ringing:
+      s_example_bitmap = gbitmap_create_with_resource(RESOURCE_ID_WAKEY_IMAGE);
+    
+      s_bitmap_layer = bitmap_layer_create(GRect(0, 0, 150, 150));
+      bitmap_layer_set_bitmap(s_bitmap_layer, s_example_bitmap);
+    
+      layer_add_child(window_get_root_layer(s_main_window), bitmap_layer_get_layer(s_bitmap_layer));
+    
+      text_layer_set_text_color(s_time_layer, GColorWhite);
       text_layer_set_text(s_time_layer, "Wakey wakey!");
       vibes_long_pulse();
       secondCount++;

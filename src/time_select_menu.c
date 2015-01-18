@@ -67,7 +67,7 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   if (edit_hours) {
     edit_hours = !edit_hours;
-    text_layer_set_text(s_banner_layer, "Now the minutes");
+    text_layer_set_text(s_banner_layer, "Now the minutes:");
   }
   else if (!edit_hours) {
     edit_hours = true;
@@ -122,9 +122,9 @@ void time_select_window_load(Window *window) {
   
   //Sets up the colors and content of the layer
   s_banner_layer = text_layer_create(GRect(5, 5, 150, 100));
-  s_hour_layer= text_layer_create(GRect(15, 55, 100, 50));
-  s_colon_layer = text_layer_create(GRect(30, 54, 100, 50));
-  s_minute_layer = text_layer_create(GRect(20, 55, 144, 50));
+  s_hour_layer= text_layer_create(GRect(10, 55, 100, 50));
+  s_colon_layer = text_layer_create(GRect(25, 54, 100, 50));
+  s_minute_layer = text_layer_create(GRect(15, 55, 144, 50));
   
   text_layer_set_background_color(s_banner_layer, GColorClear);
   text_layer_set_background_color(s_hour_layer, GColorClear);

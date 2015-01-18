@@ -7,7 +7,14 @@
     "longName": "Starter",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/icon2.png",
+                "menuIcon": true,
+                "name": "icon",
+                "type": "png"
+            }
+        ]
     },
     "shortName": "Starter",
     "uuid": "5887659b-1c4d-4525-a978-d8d8fa0a9f19",

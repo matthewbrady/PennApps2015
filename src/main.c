@@ -316,7 +316,7 @@ static void wakeup_handler(WakeupId id, int32_t reason) {
 }
 
 static void init() {
-  clear_all();
+  
   s_menu_window = window_create();
 
   // Setup the window handlers

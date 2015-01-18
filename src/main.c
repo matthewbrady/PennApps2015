@@ -258,6 +258,7 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer); //Destroys the layer to free up memory
+  tick_timer_service_unsubscribe(); //Sets the pebble to call the handler every second
   window_destroy(s_main_window);
 }
 

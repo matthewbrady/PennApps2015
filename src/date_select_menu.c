@@ -40,13 +40,13 @@ void date_select_menu_load(Window *window) {
   GRect bounds = layer_get_frame(menu_window_layer);
   
     // Initialize the simple menu layer
-  simple_menu_layer = simple_menu_layer_create(bounds, window, menu_sections, NUM_MENU_SECTIONS, NULL);
+  simple_menu_layer2 = simple_menu_layer_create(bounds, window, menu_sections, NUM_MENU_SECTIONS, NULL);
 
   // Add it to the window for display
-  layer_add_child(menu_window_layer, simple_menu_layer_get_layer(simple_menu_layer));
+  layer_add_child(menu_window_layer, simple_menu_layer_get_layer(simple_menu_layer2));
 }
 void date_select_menu_unload(Window *window) {
-  simple_menu_layer_destroy(simple_menu_layer);
+  simple_menu_layer_destroy(simple_menu_layer2);
 
   // Cleanup the menu icon
   //gbitmap_destroy(menu_icon_image);

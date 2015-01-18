@@ -282,17 +282,18 @@ static void init() {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "init");
 
   if (launch_reason()==APP_LAUNCH_WAKEUP){
-    //need to push striaght to wakeup mode 
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "NOW WE WILL BEGIN");
+    //start the new window and push it 
     s_main_window = window_create();
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "pushing");
-    // Setup the window handlers
+  
     window_set_window_handlers(s_main_window, (WindowHandlers) {
       .load = main_window_load,
       .unload = main_window_unload
     });
-
-    window_stack_push(s_day_window, true /* Animated */);
+    
+    window_stack_push(s_main_window, true);
   }
+
   
   //tick_timer_service_subscribe(SECOND_UNIT, tick_handler); //Sets the pebble to call the handler every second
   //window_set_click_config_provider(s_main_window, click_config_provider);

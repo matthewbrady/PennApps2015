@@ -4,6 +4,7 @@
 #define SAVE_LIMIT (10)
 #define NOTIFY_IF_MISSED false
 #define SECONDS_IN_WEEK (604800)
+#define SECOND_OFFSET (45)//necessary because the scheduler seems to lag behind about a minute 
 
 int interval_write(interval interval_object){
   int i;
@@ -39,7 +40,7 @@ void schedule_all(){
   
       
       //if (!wakeup_query(id, &timestamp)){
-        wakeup_schedule(timestamp, id, NOTIFY_IF_MISSED);
+        wakeup_schedule(timestamp-SECOND_OFFSET, id, NOTIFY_IF_MISSED);
         APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "timestamp: %lu", timestamp);
         APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "Scheduled (hopefully) with %d hours, %d mins, day: %d", hours, mins, day);
 

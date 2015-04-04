@@ -18,3 +18,5 @@ Ever had that one class you just can't keep your eyes open for? While we can't m
 In order to assess the alertness of the subject, ShakeShock monitors watch accelerometer data over time and applies a simple formula: how much has the subject moved in the last 30 seconds? Our field tests demonstrate that students taking notes almost always make some detectable movement over 30 seconds (say, flipping a page or adjusting their paper), even when the watch is on their non-dominant wrist. To this end, we run acclerometer data through a filter to see if the changes exceed a certain threshold for noise, and trigger an alert as soon as significant time has passed without movement.
 
 Video demonstration: https://www.youtube.com/watch?v=ioQout2L_YE
+ChallengePost: http://challengepost.com/software/buzzer-36uty
+
